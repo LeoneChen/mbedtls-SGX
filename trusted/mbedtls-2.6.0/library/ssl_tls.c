@@ -6046,7 +6046,8 @@ int mbedtls_ssl_conf_psk( mbedtls_ssl_config *conf,
 {
     if( psk == NULL || psk_identity == NULL )
         return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
-
+    if( psk_len == 0 )
+        return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
     if( psk_len > MBEDTLS_PSK_MAX_LEN )
         return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
 
