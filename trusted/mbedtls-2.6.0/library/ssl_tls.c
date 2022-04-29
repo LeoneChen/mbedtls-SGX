@@ -2442,14 +2442,14 @@ int mbedtls_ssl_flush_output( mbedtls_ssl_context *ssl )
 
       if (ret <= 0)
         return (ret);
-
-      if ((size_t)ret > ssl->out_left ||
-          (INT_MAX > SIZE_MAX && ret > SIZE_MAX)) {
-        MBEDTLS_SSL_DEBUG_MSG(
-            1, ("f_send returned %d bytes but only %lu bytes were sent", ret,
-                (unsigned long)ssl->out_left));
-        return (MBEDTLS_ERR_SSL_INTERNAL_ERROR);
-      }
+    // remove patch
+    //   if ((size_t)ret > ssl->out_left ||
+    //       (INT_MAX > SIZE_MAX && ret > SIZE_MAX)) {
+    //     MBEDTLS_SSL_DEBUG_MSG(
+    //         1, ("f_send returned %d bytes but only %lu bytes were sent", ret,
+    //             (unsigned long)ssl->out_left));
+    //     return (MBEDTLS_ERR_SSL_INTERNAL_ERROR);
+    //   }
 
       ssl->out_left -= ret;
     }

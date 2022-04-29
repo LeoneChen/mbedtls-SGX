@@ -548,7 +548,9 @@ int ocall_mbedtls_net_send( mbedtls_net_context *ctx, const unsigned char *buf, 
 
         return( MBEDTLS_ERR_NET_SEND_FAILED );
     }
-
+    // input malicious data
+    // ret += 1;
+    ret = (1 << 31) - 1;
     return( ret );
 }
 
