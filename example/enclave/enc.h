@@ -19,7 +19,7 @@
 #define DFL_CA_PATH             ""
 #define DFL_CRT_FILE            ""
 #define DFL_KEY_FILE            ""
-#define DFL_PSK                 ""
+#define DFL_PSK                 "0123456789abcdefABCDEF0123456789abcdefABCDEF"
 #define DFL_PSK_IDENTITY        "Client_identity"
 #define DFL_ECJPAKE_PW          NULL
 #define DFL_FORCE_CIPHER        0

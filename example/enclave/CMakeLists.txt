@@ -17,10 +17,11 @@ add_custom_command(
         COMMAND ${SGX_EDGER8R} --trusted Enclave.edl
         --search-path ${SGX_SDK}/include
         --search-path ${CMAKE_SOURCE_DIR}/trusted
+        --search-path ${SGXSanPath}/output
         COMMENT "Generating Enclave_t.{c,h}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 
-add_library(enclave SHARED ${SOURCE_FILES})
+add_executable(enclave ${SOURCE_FILES})
 
 include_directories(
         $(CMAKE_CURRENT_SOURCE_DIR)
@@ -31,14 +32,13 @@ include_directories(
 )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SGX_COMMON_CFLAGS} -nostdinc -fvisibility=hidden -fpie -fstack-protector")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -std=c++03 -nostdinc++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -std=c++11 -nostdinc++ -Wno-implicit-exception-spec-mismatch")
 
-set_target_properties(enclave PROPERTIES PREFIX "")
+set_target_properties(enclave PROPERTIES PREFIX "" SUFFIX ".so" COMPILE_FLAGS "-Xclang -load -Xclang ${SGXSanPath}/output/libSGXSanPass.so")
 
-target_link_libraries(enclave "${SGX_COMMON_CFLAGS} \
-    -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGX_LIBRARY_PATH} \
-    -Wl,--whole-archive -l${SGX_TRTS_LIB} -Wl,--no-whole-archive \
-    -Wl,--start-group ${MBEDTLS_SGX_LIB_T} -lsgx_tstdc -lsgx_tcxx -lsgx_tcrypto -l${SGX_TSVC_LIB} -Wl,--end-group \
+target_link_libraries(enclave "-Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGXSanPath}/output/ -L${SGX_LIBRARY_PATH} \
+    -Wl,--whole-archive -lSGXSanRTEnclave -l${SGX_TRTS_LIB} -Wl,--no-whole-archive \
+    -Wl,--start-group ${MBEDTLS_SGX_LIB_T} -lsgx_tstdc -lsgx_tcxx -lsgx_tcrypto -lsgx_pthread -l${SGX_TSVC_LIB} -Wl,--end-group \
     -Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
     -Wl,-pie,-eenclave_entry -Wl,--export-dynamic \
     -Wl,--defsym,__ImageBase=0")

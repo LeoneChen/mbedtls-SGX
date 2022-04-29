@@ -1,0 +1,152 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(clang) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/opt/llvm/bin/clang++",
+            "args": [
+                "-DDEBUG",
+                "-UNDEBUG",
+                "-UEDEBUG",
+                "-m64",
+                "-O0",
+                "-g",
+                "-nostdinc",
+                "-fvisibility=hidden",
+                "-fpie",
+                "-fstack-protector",
+                "-std=c++11",
+                "-nostdinc++",
+                "-Wno-implicit-exception-spec-mismatch",
+                "-rdynamic",
+                "CMakeFiles/enclave.dir/Enclave_t.c.o",
+                "CMakeFiles/enclave.dir/ecalls.cpp.o",
+                "CMakeFiles/enclave.dir/Log.c.o",
+                "CMakeFiles/enclave.dir/pprint.c.o",
+                "CMakeFiles/enclave.dir/s_client.c.o",
+                "CMakeFiles/enclave.dir/s_server.c.o",
+                "CMakeFiles/enclave.dir/ssl_conn_hdlr.cpp.o",
+                "-o",
+                "../../enclave.so",
+                "-Wl,--no-undefined",
+                "-nostdlib",
+                "-nodefaultlibs",
+                "-nostartfiles",
+                "-L/home/leone/文档/linux-sgx/SGXSan/output/",
+                "-L/opt/intel/sgxsdk/lib64",
+                "-Wl,--whole-archive",
+                "-lSGXSanRTEnclave",
+                "-lsgx_trts",
+                "-Wl,--no-whole-archive",
+                "-Wl,--start-group",
+                "/home/leone/文档/SGX_APP/mbedtls-SGX/build/trusted/libmbedtls_SGX_t.a",
+                "-lsgx_tstdc",
+                "-lsgx_tcxx",
+                "-lsgx_tcrypto",
+                "-lsgx_pthread",
+                "-lsgx_tservice",
+                "-Wl,--end-group",
+                "-Wl,-Bstatic",
+                "-Wl,-Bsymbolic",
+                "-Wl,--no-undefined",
+                "-Wl,-pie,-eenclave_entry",
+                "-Wl,--export-dynamic",
+                "-Wl,--defsym,__ImageBase=0",
+                "-fuse-ld=lld",
+                "-Wl,-mllvm=-load=/home/leone/文档/linux-sgx/SGXSan/output/libSensitiveLeakSanPass.so",
+                "-Wl,-mllvm=-load=/home/leone/文档/linux-sgx/SGXSan/output/libSGXSanPass.so"
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/leone/文档/SGX_APP/mbedtls-SGX/build/example/enclave",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                },
+                {
+                    "text": "-gdb-set follow-fork-mode child"
+                }
+            ]
+        },
+        {
+            "name": "(s_client) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/leone/文档/SGX_APP/mbedtls-SGX/build/s_client",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "/home/leone/文档/SGX_APP/mbedtls-SGX/build/",
+            "environment": [],
+            "externalConsole": false,
+            // "MIMode": "gdb",
+            "miDebuggerPath": "/opt/intel/sgxsdk/bin/sgx-gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(compile) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/opt/llvm/bin/clang",
+            "args": [
+                "-DENCLAVE_STD_ALT",
+                "-Denclave_EXPORTS",
+                "-I/home/leone/文档/SGX_APP/mbedtls-SGX/example/enclave/",
+                "-I/home/leone/文档/SGX_APP/mbedtls-SGX/include",
+                "-I/opt/intel/sgxsdk/include",
+                "-I/opt/intel/sgxsdk/include/tlibc",
+                "-I/opt/intel/sgxsdk/include/libcxx",
+                "-DDEBUG",
+                "-UNDEBUG",
+                "-UEDEBUG",
+                "-m64",
+                "-O0",
+                "-g",
+                "-nostdinc",
+                "-fvisibility=hidden",
+                "-fpie",
+                "-fstack-protector",
+                "-Xclang",
+                "-load",
+                "-Xclang",
+                "/home/leone/文档/linux-sgx/SGXSan/output/libSGXSanPass.so",
+                "-fPIC",
+                "-o",
+                "/home/leone/文档/SGX_APP/mbedtls-SGX/example/enclave/Enclave_t.o",
+                "-c",
+                "/home/leone/文档/SGX_APP/mbedtls-SGX/example/enclave/Enclave_t.c"
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/leone/文档/SGX_APP/mbedtls-SGX/example",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

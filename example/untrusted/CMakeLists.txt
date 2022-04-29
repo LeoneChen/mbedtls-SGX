@@ -12,6 +12,7 @@ add_custom_command(
         --search-path ../enclave/ # enclave.edl
         --search-path ${SGX_SDK}/include
         --search-path ${CMAKE_SOURCE_DIR}/trusted # mbedtls_sgx.edl
+        --search-path ${SGXSanPath}/output
         COMMENT "Generating Enclave_u.{c,h}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -27,14 +28,17 @@ include_directories(
 
 target_link_libraries(s_client
         -L${SGX_LIBRARY_PATH} -l${SGX_URTS_LIB} -l${SGX_USVC_LIB}
+        -L${SGXSanPath}/output -lSGXSanRTApp -Wl,-rpath=${SGXSanPath}/output
         ${MBEDTLS_SGX_LIB_U} -lpthread)
 
 target_link_libraries(s_server
         -L${SGX_LIBRARY_PATH} -l${SGX_URTS_LIB} -l${SGX_USVC_LIB}
+        -L${SGXSanPath}/output -lSGXSanRTApp -Wl,-rpath=${SGXSanPath}/output
         ${MBEDTLS_SGX_LIB_U} -lpthread)
 
 target_link_libraries(m_server
         -L${SGX_LIBRARY_PATH} -l${SGX_URTS_LIB} -l${SGX_USVC_LIB}
+        -L${SGXSanPath}/output -lSGXSanRTApp -Wl,-rpath=${SGXSanPath}/output
         ${MBEDTLS_SGX_LIB_U} -lpthread)
 
 add_dependencies(s_client enclave)
