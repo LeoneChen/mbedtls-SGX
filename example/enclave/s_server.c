@@ -127,7 +127,7 @@ int main( void )
 #define DFL_SNI                 NULL
 #define DFL_ALPN_STRING         NULL
 #define DFL_DHM_FILE            NULL
-#define DFL_TRANSPORT           MBEDTLS_SSL_TRANSPORT_STREAM
+#define DFL_TRANSPORT           MBEDTLS_SSL_TRANSPORT_DATAGRAM
 #define DFL_COOKIES             1
 #define DFL_ANTI_REPLAY         -1
 #define DFL_HS_TO_MIN           0
@@ -775,6 +775,12 @@ void term_handler( int sig )
     mbedtls_net_free_ocall( &client_fd ); /* causes net_read() to abort */
 }
 #endif
+
+void mbedtls_timing_set_delay(void *data, uint32_t int_ms, uint32_t fin_ms)
+{
+    return;
+}
+int mbedtls_timing_get_delay(void *data) { return 0; }
 
 int ssl_server()
 {
@@ -1812,10 +1818,9 @@ int ssl_server()
         mbedtls_ssl_set_bio( &ssl, &client_fd, mbedtls_net_send_ocall, mbedtls_net_recv_ocall,
                              opt.nbio == 0 ? mbedtls_net_recv_timeout_ocall : NULL );
 
-#if defined(MBEDTLS_TIMING_C)
+    int timer;
     mbedtls_ssl_set_timer_cb( &ssl, &timer, mbedtls_timing_set_delay,
                                             mbedtls_timing_get_delay );
-#endif
 
     mbedtls_printf( " ok\n" );
 

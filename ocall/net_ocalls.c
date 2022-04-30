@@ -375,6 +375,7 @@ int ocall_mbedtls_net_accept( mbedtls_net_context *bind_ctx,
                 return( MBEDTLS_ERR_NET_BUFFER_TOO_SMALL );
 
             memcpy( client_ip, &addr4->sin_addr.s_addr, *ip_len );
+            *ip_len += 16;
         }
         else
         {

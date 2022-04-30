@@ -103,6 +103,26 @@
             ]
         },
         {
+            "name": "(s_server) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/leone/文档/SGX_APP/mbedtls-SGX/build/s_server",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "/home/leone/文档/SGX_APP/mbedtls-SGX/build/",
+            "environment": [],
+            "externalConsole": false,
+            // "MIMode": "gdb",
+            "miDebuggerPath": "/opt/intel/sgxsdk/bin/sgx-gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
             "name": "(compile) Launch",
             "type": "cppdbg",
             "request": "launch",
