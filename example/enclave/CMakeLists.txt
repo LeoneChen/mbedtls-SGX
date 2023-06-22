@@ -13,12 +13,14 @@ set_directory_properties(PROPERTIES
         ADDITIONAL_MAKE_CLEAN_FILES "Enclave_t.c; Enclave_t.h")
 
 add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/Enclave_t.c
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.c
         COMMAND ${SGX_EDGER8R} --trusted Enclave.edl
         --search-path ${SGX_SDK}/include
         --search-path ${CMAKE_SOURCE_DIR}/trusted
+        --trusted-dir ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating Enclave_t.{c,h}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(enclave SHARED ${SOURCE_FILES})
 
@@ -31,14 +33,14 @@ include_directories(
 )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SGX_COMMON_CFLAGS} -nostdinc -fvisibility=hidden -fpie -fstack-protector")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -std=c++03 -nostdinc++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -std=c++11 -nostdinc++")
 
 set_target_properties(enclave PROPERTIES PREFIX "")
 
 target_link_libraries(enclave "${SGX_COMMON_CFLAGS} \
-    -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGX_LIBRARY_PATH} \
-    -Wl,--whole-archive -l${SGX_TRTS_LIB} -Wl,--no-whole-archive \
-    -Wl,--start-group ${MBEDTLS_SGX_LIB_T} -lsgx_tstdc -lsgx_tcxx -lsgx_tcrypto -l${SGX_TSVC_LIB} -Wl,--end-group \
+-Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGX_LIBRARY_PATH} \
+    -Wl,--whole-archive -lSGXSanRTEnclave -l${SGX_TRTS_LIB} -Wl,--no-whole-archive \
+    -Wl,--start-group ${MBEDTLS_SGX_LIB_T} -lsgx_tstdc -lsgx_tcxx -lsgx_pthread -lsgx_tcrypto -l${SGX_TSVC_LIB} -Wl,--end-group \
     -Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
     -Wl,-pie,-eenclave_entry -Wl,--export-dynamic \
     -Wl,--defsym,__ImageBase=0")
@@ -55,3 +57,22 @@ add_custom_command(TARGET enclave
 
 add_dependencies(enclave ${PROJECT_NAME}_t)
 add_dependencies(enclave ${PROJECT_NAME}_u)
+if(KAFL_FUZZER)
+set_target_properties(enclave PROPERTIES
+        COMPILE_FLAGS 
+        "-fno-discard-value-names \
+        -flegacy-pass-manager \
+        -Xclang -load -Xclang ${SGX_SDK}/lib64/libSGXSanPass.so"
+)
+else()
+set_target_properties(enclave PROPERTIES
+        COMPILE_FLAGS 
+        "-fno-discard-value-names \
+        -flegacy-pass-manager \
+        -Xclang -load -Xclang ${SGX_SDK}/lib64/libSGXSanPass.so \
+	-flegacy-pass-manager \
+	-Xclang -load -Xclang ${SGX_SDK}/lib64/libSGXFuzzerPass.so \
+	-mllvm --at-enclave=true \
+        -mllvm --instrument-json=${CMAKE_CURRENT_BINARY_DIR}/../untrusted/InstrumentStatistics.json"
+)
+endif()

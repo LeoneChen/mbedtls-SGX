@@ -1,13 +1,15 @@
 FILE(GLOB MBEDTLS_SGX_SRC_FILES mbedtls-${MBEDTLS_VERSION}/library/*.c)
 
 add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}_t.c
-    COMMAND ${SGX_EDGER8R} --trusted ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.edl
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_t.h
+    COMMAND ${SGX_EDGER8R} --trusted --header-only ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.edl
+    --trusted-dir ${CMAKE_CURRENT_BINARY_DIR}
     --search-path ${SGX_SDK}/include
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(${PROJECT_NAME}_t STATIC ${MBEDTLS_SGX_SRC_FILES} ${PROJECT_NAME}_t.c glue.c dummy.c net_sockets_proxy.c)
+add_library(${PROJECT_NAME}_t STATIC ${MBEDTLS_SGX_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_t.h glue.c dummy.c net_sockets_proxy.c)
 
 add_subdirectory(mbedtls-${MBEDTLS_VERSION}/include)
 
@@ -21,6 +23,25 @@ include_directories(
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SGX_COMMON_CFLAGS} -nostdinc -fvisibility=hidden -fpie -fstack-protector")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -std=c++03 -nostdinc++")
+if(KAFL_FUZZER)
+set_target_properties(${PROJECT_NAME}_t PROPERTIES
+    COMPILE_FLAGS
+    "-fno-discard-value-names \
+    -flegacy-pass-manager \
+    -Xclang -load -Xclang ${SGX_SDK}/lib64/libSGXSanPass.so"
+)
+else()
+set_target_properties(${PROJECT_NAME}_t PROPERTIES
+    COMPILE_FLAGS 
+    "-fno-discard-value-names \
+    -flegacy-pass-manager \
+    -Xclang -load -Xclang ${SGX_SDK}/lib64/libSGXSanPass.so \
+	-flegacy-pass-manager \
+	-Xclang -load -Xclang ${SGX_SDK}/lib64/libSGXFuzzerPass.so \
+	-mllvm --at-enclave=true\
+    -mllvm --instrument-json=${CMAKE_CURRENT_BINARY_DIR}/../example/untrusted/InstrumentStatistics.json"
+)
+endif()
 
 target_link_libraries(${PROJECT_NAME}_t "${SGX_COMMON_CFLAGS} \
     -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L${SGX_LIBRARY_PATH} \
