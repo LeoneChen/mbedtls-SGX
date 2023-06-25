@@ -9,3 +9,12 @@ include_directories(
 install(TARGETS ${PROJECT_NAME}_u
     DESTINATION lib
     PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+
+if(NOT KAFL_FUZZER)
+set_target_properties(${PROJECT_NAME}_u PROPERTIES
+    COMPILE_FLAGS
+    "-fsanitize-coverage=inline-8bit-counters,bb,no-prune,pc-table,trace-cmp \
+    -fprofile-instr-generate \
+    -fcoverage-mapping"
+)
+endif()

@@ -10,7 +10,7 @@ using namespace std;
 /* Global EID shared by multiple threads */
 sgx_enclave_id_t eid = 0;
 
-int main() {
+int __hidden_main() {
   int ret;
 
 #if defined(_MSC_VER)

@@ -1,6 +1,6 @@
 #include "ssl_conn_hdlr.h"
 
-#include <exception>
+#include <stdexcept>
 #include <mbedtls/net.h>
 #include <mbedtls/debug.h>
 

@@ -1,3 +1,11 @@
+#if defined(__cplusplus)
+extern "C"{
+#endif
+void SGXSanLogEnter(const char *str);
+#if defined(__cplusplus)
+}
+#endif
+#define LogEnter SGXSanLogEnter
 #include "Enclave_t.h"
 #include "enc.h"
 #include "s_server.h"
@@ -20,6 +28,7 @@ void ssl_conn_handle(long int thread_id, thread_info_t *thread_info);
 
 int sgx_connect()
 {
+    LogEnter(__func__);
     client_opt_t opt;
     unsigned char buf[1024];
     client_opt_init(&opt);
@@ -32,19 +41,23 @@ int sgx_connect()
 
 int sgx_accept()
 {
+    LogEnter(__func__);
     return ssl_server();
 }
 
 TLSConnectionHandler* connectionHandler;
 
 void ssl_conn_init(void) {
+    LogEnter(__func__);
   connectionHandler = new TLSConnectionHandler();
 }
 
 void ssl_conn_handle(long int thread_id, thread_info_t* thread_info) {
+    LogEnter(__func__);
   connectionHandler->handle(thread_id, thread_info);
 }
 
 void ssl_conn_teardown(void) {
+    LogEnter(__func__);
   delete connectionHandler;
 }
