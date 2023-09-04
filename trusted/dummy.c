@@ -1,3 +1,4 @@
+#include "kafl_hc.h"
 /*
  * This file is intentionally left empty. 
  * If mbedtls_sgx.edl has one or more public ECALL(s), this
@@ -9,5 +10,6 @@
 
 // a dummy function
 void dummy(void) {
+    LogEnter(__func__);
     ;
 }
